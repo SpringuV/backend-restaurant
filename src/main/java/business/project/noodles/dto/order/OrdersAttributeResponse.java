@@ -12,4 +12,5 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrdersAttributeResponse {
+    double total_amount;
 }
