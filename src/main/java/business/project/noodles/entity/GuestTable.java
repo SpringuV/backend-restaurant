@@ -1,6 +1,8 @@
 package business.project.noodles.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -26,6 +28,12 @@ public class GuestTable {
     @JoinTable(name = "reservation", joinColumns = @JoinColumn(name = "id_table"), inverseJoinColumns = @JoinColumn(name = "id_order"))
     List<Orders> order_list;
 
+    @Column(name = "capacity")
+    @Min(2)
+    @Max(20)
+    @Builder.Default
+    Integer capacity = 2;
+
     public enum TypeTable {VIP, NORMAL}
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
@@ -33,7 +41,7 @@ public class GuestTable {
 
     @Builder.Default
     @Column(name = "is_available")
-    boolean is_available = true;
+    boolean available = true;
 
     @Column(name = "created_at", updatable = false)
     Instant created_at;

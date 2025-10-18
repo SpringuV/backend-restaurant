@@ -1,10 +1,10 @@
 package business.project.noodles.dto.guest_table;
 
 import business.project.noodles.entity.GuestTable;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.Instant;
 
 @Getter
 @Setter
@@ -12,8 +12,11 @@ import java.time.Instant;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class TableCreateResponse {
-    GuestTable.TypeTable type;
-    boolean is_available;
-    Instant created_at;
+public class TableBookingRequest {
+    int id_table;
+    String customer_name;
+    String phone_cus;
+    Integer sum_human;
+    String note_booking;
+    String user_id;
 }

@@ -30,6 +30,13 @@ public class Orders {
     @OneToOne(mappedBy = "orders", cascade = CascadeType.ALL)
     Invoice invoice;
 
+    @Column(name = "note_order")
+    String note_order;
+
+    @Column(name = "sum_human")
+    @Builder.Default
+    Integer sum_human = 1;
+
     //	Tránh NullPointerException khi dùng builder hoặc thêm phần tử vào list.
 //	Khi dùng builder của Lombok, nếu không thêm @Builder.Default, các list sẽ là null.
     @ManyToMany(mappedBy = "order_list")

@@ -1,7 +1,10 @@
 package business.project.noodles.dto.guest_table;
 
+import business.project.noodles.entity.GuestTable;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -9,9 +12,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class TableResponse {
-    int id_table;
-    String type;
-    int capacity;
-    boolean available;
+public class TableBookingResponse {
+    CustomerBookingResponse customerBookingResponse;
+    OrderBookingResponse orderBookingResponse;
 }
