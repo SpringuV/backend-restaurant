@@ -25,7 +25,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id_user;
 
-    @Column(name = "username")
+    @Column(name = "username", unique = true)
     String username;
 
     @Column(name = "phone_number", unique = true)

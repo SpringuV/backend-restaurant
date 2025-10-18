@@ -37,9 +37,10 @@ public class AuthenticationController {
     }
 
     @PostMapping("/logout")
-    ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
-        authenticationService.logout(request);
-        return ApiResponse.<Void>builder().build();
+    ApiResponse<LogoutResponse> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
+        return ApiResponse.<LogoutResponse>builder()
+                .result(authenticationService.logout(request))
+                .build();
     }
 
     @PostMapping("/refresh")

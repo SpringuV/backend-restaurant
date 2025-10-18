@@ -86,14 +86,17 @@ public class AuthenticationService {
         // generate token
         var token = generateToken(user);
 
-        return AuthenticationResponse.builder().token(token).authenticated(true).build();
+        return AuthenticationResponse.builder()
+                .token(token)
+                .authenticated(true)
+                .build();
     }
 
     private String generateToken(User user) {
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUsername())
-                .issuer("shoe-shop.project")
+                .issuer("business-noodle-soup")
                 .issueTime(new Date())
                 .claim("userId", user.getId_user())
                 .claim("scope", buildScope(user))
@@ -132,7 +135,7 @@ public class AuthenticationService {
     }
 
     // logout
-    public void logout(LogoutRequest logoutRequest) throws JOSEException, ParseException {
+    public LogoutResponse logout(LogoutRequest logoutRequest) throws JOSEException, ParseException {
         try {
             // phải refresh vì ngăn chặn việc sử dụng lại token khi logout
             var signToken = verifyToken(logoutRequest.getToken(), true);
@@ -145,7 +148,7 @@ public class AuthenticationService {
 
             // save invalidatedToken
             invalidatedTokenRepository.save(invalidatedToken);
-
+            return LogoutResponse.builder().success(true).message("Log out success").build();
         } catch (AppException e) {
             log.info("Token already expired");
             throw new AppException(ErrorCode.UN_AUTHENTICATED);
