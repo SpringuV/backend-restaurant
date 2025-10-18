@@ -2,13 +2,10 @@ package business.project.noodles.dto.inventory_transaction;
 
 import business.project.noodles.dto.User.UserAttributeResponse;
 import business.project.noodles.dto.ingredient.IngredientAttributeResponse;
-import business.project.noodles.dto.order.OrdersAttributeResponse;
 import business.project.noodles.entity.InventoryTransaction;
-import jakarta.persistence.Entity;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-@Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 @Getter

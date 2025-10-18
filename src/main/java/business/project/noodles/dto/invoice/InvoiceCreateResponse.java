@@ -4,13 +4,11 @@ import business.project.noodles.dto.User.UserAttributeResponse;
 import business.project.noodles.dto.customer.CustomerAttributeResponse;
 import business.project.noodles.dto.order.OrdersAttributeResponse;
 import business.project.noodles.entity.Invoice;
-import jakarta.persistence.Entity;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
 
-@Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 @Getter
