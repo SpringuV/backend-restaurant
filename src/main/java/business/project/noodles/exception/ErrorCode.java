@@ -9,6 +9,7 @@ public enum ErrorCode {
     UN_AUTHORIZED_TO_DELETE_USER(101, "Un authorized to delete user", HttpStatus.UNAUTHORIZED),
     UNCATEGORIZED_EXCEPTION(101, "Uncategorized exception !", HttpStatus.INTERNAL_SERVER_ERROR),
 
+    TABLE_NOT_FOUND(102, "Table not found !", HttpStatus.NOT_FOUND),
     USER_NOT_FOUND(102, "User not found !", HttpStatus.NOT_FOUND),
     ORDERS_NOT_FOUND(102, "Orders not found !", HttpStatus.NOT_FOUND),
     ORDERS_ITEM_NOT_FOUND(102, "Orders item not found !", HttpStatus.NOT_FOUND),

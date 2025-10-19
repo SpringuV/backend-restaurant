@@ -30,22 +30,10 @@ public class OrderItem {
     Food food;
 
     @Column(name = "quantity")
-    int quantity;
-
-    @Column(name = "price")
-    double price;
+    Integer quantity;
 
     @Column(name = "special_requests")
     String special_requests; // customer notes
-
-    @Column(name = "unit")
-    String unit;
-
-    @Column(name = "size")
-    String size;
-
-    @Column(name = "discount")
-    double discount;
 
     @Column(name="note")
     String note;

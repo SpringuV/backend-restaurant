@@ -24,7 +24,7 @@ public class GuestTable {
     @Column(name = "id_table", unique = true)
     int id_table; // Mã bàn
 
-    @ManyToMany(mappedBy = "guest_table_list")
+    @OneToMany(mappedBy = "guest_table", cascade = CascadeType.ALL)
     List<Orders> order_list;
 
     @Column(name = "capacity")

@@ -14,9 +14,9 @@ public class FoodResponse {
 
     String id_food;
     String name_food;
-    double prices;
+    Double price;
     String description;
-    String image_path;
+    String image_url;
     Food.FoodType type_food;
-    boolean is_available;
+//    boolean is_available;
 }

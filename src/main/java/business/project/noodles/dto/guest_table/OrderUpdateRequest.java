@@ -1,10 +1,8 @@
 package business.project.noodles.dto.guest_table;
 
-import business.project.noodles.entity.Orders;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.Instant;
 import java.util.List;
 
 @Getter
@@ -13,10 +11,12 @@ import java.util.List;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class OrderBookingResponse {
+public class OrderUpdateRequest {
+    List<OrderItemCreateRequest> food_items;
     Long id_order;
+    Integer id_table;
     String note_order;
     String order_status;
-    Instant created_at;
-    Integer id_table;
+    String phone_number;
+    Double total_amount;
 }

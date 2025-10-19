@@ -39,13 +39,9 @@ public class Orders {
 
     //	Tránh NullPointerException khi dùng builder hoặc thêm phần tử vào list.
 //	Khi dùng builder của Lombok, nếu không thêm @Builder.Default, các list sẽ là null.
-    @ManyToMany
-    @JoinTable(
-            name = "reservation",
-            joinColumns = @JoinColumn(name = "id_order"),
-            inverseJoinColumns = @JoinColumn(name = "id_table")
-    )
-    List<GuestTable> guest_table_list;
+    @ManyToOne
+    @JoinColumn(name = "id_table")
+    GuestTable guest_table;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true) // xóa 1 phần tử khỏi order_item_list, Hibernate sẽ tự động DELETE bản ghi tương ứng trong DB.
     List<OrderItem> order_item_list;

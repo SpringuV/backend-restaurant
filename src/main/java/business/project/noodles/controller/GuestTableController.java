@@ -1,9 +1,7 @@
 package business.project.noodles.controller;
 
 import business.project.noodles.dto.ApiResponse;
-import business.project.noodles.dto.guest_table.TableBookingRequest;
-import business.project.noodles.dto.guest_table.TableBookingResponse;
-import business.project.noodles.dto.guest_table.TableResponse;
+import business.project.noodles.dto.guest_table.*;
 import business.project.noodles.service.GuestTableService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -34,4 +32,23 @@ public class GuestTableController {
                 .result(guestTableService.bookingTable(request))
                 .build();
     }
+
+    @GetMapping("/orders/{orderId}")
+    public ApiResponse<OrderDetailResponse> getDetailTable(
+            @PathVariable("orderId") Long id_order
+    ) {
+        return ApiResponse.<OrderDetailResponse>builder()
+                .message("Table Detail")
+                .result(guestTableService.getDetailTable(id_order))
+                .build();
+    }
+
+    @PostMapping("/orders/update")
+    public ApiResponse<OrderUpdateResponse> updateOrder(@RequestBody OrderUpdateRequest request){
+        return ApiResponse.<OrderUpdateResponse>builder()
+                .message("Update Order")
+                .result(guestTableService.updateOrder(request))
+                .build();
+    }
+
 }

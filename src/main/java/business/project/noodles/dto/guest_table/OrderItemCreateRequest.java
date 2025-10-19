@@ -9,11 +9,8 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class TableBookingRequest {
-    int id_table;
-    String customer_name;
-    String phone_cus;
-    Integer sum_human;
-    String note_booking;
-    String user_id;
+public class OrderItemCreateRequest {
+    String id_food;
+    String note;
+    Integer quantity;
 }

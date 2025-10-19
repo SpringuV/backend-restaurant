@@ -22,14 +22,14 @@ public class Food {
     @Column(name= "name_food")
     String name_food;
 
-    @Column(name= "prices")
-    double prices;
+    @Column(name= "price")
+    Double price;
 
     @Column(name="description")
     String description;
 
-    @Column(name="image_path")
-    String image_path;
+    @Column(name="image_url")
+    String image_url;
 
     public enum FoodType {
         APPETIZER,      // món khai vị
