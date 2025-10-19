@@ -11,7 +11,6 @@ import lombok.experimental.FieldDefaults;
 @Builder
 public class TableResponse {
     int id_table;
-    String type;
     int capacity;
     boolean available;
 }

@@ -30,12 +30,6 @@ public class Customer {
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     List<Invoice> invoice_list;
 
-    @Column(name="sex_cus")
-    boolean sex_cus;
-
-    @Column(name="description")
-    String description;
-
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     List<Orders> order_list;
 }

@@ -24,8 +24,7 @@ public class GuestTable {
     @Column(name = "id_table", unique = true)
     int id_table; // Mã bàn
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "reservation", joinColumns = @JoinColumn(name = "id_table"), inverseJoinColumns = @JoinColumn(name = "id_order"))
+    @ManyToMany(mappedBy = "guest_table_list")
     List<Orders> order_list;
 
     @Column(name = "capacity")
@@ -33,11 +32,6 @@ public class GuestTable {
     @Max(20)
     @Builder.Default
     Integer capacity = 2;
-
-    public enum TypeTable {VIP, NORMAL}
-    @Column(name = "type")
-    @Enumerated(EnumType.STRING)
-    TypeTable type;
 
     @Builder.Default
     @Column(name = "is_available")
