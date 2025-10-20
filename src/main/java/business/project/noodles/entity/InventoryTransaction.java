@@ -45,6 +45,10 @@ public class InventoryTransaction {
     @Column(name = "updated_at")
     Instant updated_at;
 
+    @ManyToOne
+    @JoinColumn(name = "id_warehouse")
+    Warehouse warehouse;
+
     @PrePersist
     protected void onCreate() {
         this.created_at = Instant.now();

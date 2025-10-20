@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +32,7 @@ public class GuestTableService {
     CustomerRepository customerRepository;
     EntityManager entityManager;
 
-    public List<TableResponse> getListTable(){
+    public List<TableResponse> getListTable() {
         return guestTableRepository.findAll().stream()
                 .map(item -> TableResponse.builder()
                         .id_table(item.getId_table())
@@ -41,10 +42,10 @@ public class GuestTableService {
                 .toList();
     }
 
-    public TableBookingResponse bookingTable(TableBookingRequest request){
+    public TableBookingResponse bookingTable(TableBookingRequest request) {
         // tìm người dùng bằng id, nếu chưa có thì tạo và lưu
         Customer customer = customerRepository.findById(request.getUser_id())
-                .orElseGet(()-> customerRepository.save(Customer.builder()
+                .orElseGet(() -> customerRepository.save(Customer.builder()
                         .phone_number_cus(request.getPhone_cus())
                         .name_cus(request.getCustomer_name())
                         .build())
@@ -81,7 +82,7 @@ public class GuestTableService {
     }
 
     public OrderDetailResponse getDetailTable(Long id_order) {
-        Orders orders = ordersRepository.findById(id_order).orElseThrow(()-> new AppException(ErrorCode.ORDERS_NOT_FOUND));
+        Orders orders = ordersRepository.findById(id_order).orElseThrow(() -> new AppException(ErrorCode.ORDERS_NOT_FOUND));
 
         return OrderDetailResponse.builder()
                 .note_order(orders.getNote_order())
@@ -105,52 +106,61 @@ public class GuestTableService {
     }
 
     public OrderUpdateResponse updateOrder(OrderUpdateRequest request) {
-        Orders orders = ordersRepository.findById(request.getId_order()).orElseThrow(()-> new AppException(ErrorCode.ORDERS_NOT_FOUND));
+        Orders orders = ordersRepository.findById(request.getId_order()).orElseThrow(() -> new AppException(ErrorCode.ORDERS_NOT_FOUND));
         orders.setNote_order(request.getNote_order());
         orders.setOrder_status(Orders.OrderStatus.valueOf(request.getOrder_status()));
         orders.setTotal_amount(request.getTotal_amount());
-        orders.setGuest_table(GuestTable.builder().id_table(request.getId_table()).build());
-        // order item
-        List<OrderItem> orderItems = orders.getOrder_item_list();
-        if (orderItems == null) orderItems = new ArrayList<>();
+        orders.setGuest_table(entityManager.getReference(GuestTable.class, request.getId_table()));
+        // Update OrderItems
+        List<OrderItem> items = orders.getOrder_item_list();
+        if (items == null) {
+            items = new ArrayList<>();
+            orders.setOrder_item_list(items);
+        }
 
-        for (OrderItemCreateRequest itemCreateRequest : request.getFood_items()) {
-            // Kiểm tra xem đã tồn tại món này chưa
-            Optional<OrderItem> existingItemOpt = orderItems.stream()
-                    .filter(item -> item.getKeyOrderItem().getId_food().equals(itemCreateRequest.getId_food()))
+// Xóa các item không còn trong request
+        items.removeIf(existingItem ->
+                request.getFood_items().stream()
+                        .noneMatch(req -> req.getId_food().equals(existingItem.getKeyOrderItem().getId_food()))
+        );
+
+// Cập nhật các item còn lại hoặc thêm mới
+        for (OrderItemCreateRequest reqItem : request.getFood_items()) {
+            Optional<OrderItem> existing = items.stream()
+                    .filter(i -> i.getKeyOrderItem().getId_food().equals(reqItem.getId_food()))
                     .findFirst();
 
-            if (existingItemOpt.isPresent()) {
-                // Cập nhật lại quantity, note nếu cần
-                OrderItem existingItem = existingItemOpt.get();
-                existingItem.setQuantity(itemCreateRequest.getQuantity());
-                existingItem.setNote(itemCreateRequest.getNote());
+            if (existing.isPresent()) {
+                existing.get().setQuantity(reqItem.getQuantity());
+                existing.get().setNote(reqItem.getNote());
             } else {
-                // Thêm mới món chưa có
                 OrderItem newItem = OrderItem.builder()
                         .keyOrderItem(KeyOrderItem.builder()
                                 .id_order(orders.getId_order())
-                                .id_food(itemCreateRequest.getId_food())
+                                .id_food(reqItem.getId_food())
                                 .build())
-                        .note(itemCreateRequest.getNote())
-                        .quantity(itemCreateRequest.getQuantity())
+                        .note(reqItem.getNote())
+                        .quantity(reqItem.getQuantity())
                         .build();
-
-                // 🔹 Gán quan hệ hai chiều
                 newItem.setOrder(orders);
-                newItem.setFood(entityManager.getReference(Food.class, itemCreateRequest.getId_food()));
-
-                orderItems.add(newItem);
+                newItem.setFood(entityManager.getReference(Food.class, reqItem.getId_food()));
+                items.add(newItem);
             }
         }
 
-        orders.setOrder_item_list(orderItems);
-
-        Orders savedOrder = ordersRepository.save(orders);
-
-        boolean updated = savedOrder != null && savedOrder.getId_order() != null;
+// Hibernate sẽ tự động xử lý orphanRemoval khi save
+        Orders orders1 = ordersRepository.save(orders);
+        log.info("Orders1: {}", orders1);
         return OrderUpdateResponse.builder()
-                .updated(updated)
+                .updated(true)
                 .build();
+    }
+
+    public CancelOrderResponse cancelOrder(CancelOrderRequest request){
+        Orders orders = ordersRepository.findById(request.getId_order()).orElseThrow(()-> new AppException(ErrorCode.ORDERS_NOT_FOUND));
+        GuestTable guestTable = guestTableRepository.findById(orders.getGuest_table().getId_table()).orElseThrow(()-> new AppException(ErrorCode.TABLE_NOT_FOUND));
+        guestTable.setAvailable(true);
+        orders.setOrder_status(Orders.OrderStatus.CANCELLED);
+        return CancelOrderResponse.builder().is_cancelled(ordersRepository.save(orders)!= null).build();
     }
 }

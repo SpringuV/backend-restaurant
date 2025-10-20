@@ -51,4 +51,12 @@ public class GuestTableController {
                 .build();
     }
 
+    @PostMapping("/order/cancel")
+    public ApiResponse<CancelOrderResponse> cancelOrder(@RequestBody CancelOrderRequest request){
+        return ApiResponse.<CancelOrderResponse>builder()
+                .message("Cancel Order")
+                .result(guestTableService.cancelOrder(request))
+                .build();
+    }
+
 }
