@@ -4,17 +4,22 @@ import business.project.noodles.entity.Ingredient;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.Instant;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class IngredientCreateRequest {
+public class IngredientUpdateResponse {
+    String id_ingredient;
     String name_ingredients;
-    Ingredient.UnitOfMeasurement unit_of_measurement;
     Double prices;
-    String description;
-    String supplier;
     Integer quantity;
+    Ingredient.UnitOfMeasurement unit_of_measurement;
+    String description;
+    String supplier ;
+    Instant updated_at;
+    Instant created_at;
 }

@@ -21,7 +21,7 @@ public class Ingredient {
     @Column(name = "id_ingredient", unique = true)
     String id_ingredient;
 
-    @Column(name = "name_ingredient", nullable = false, unique = true)
+    @Column(name = "name_ingredient", nullable = false)
     String name_ingredients; // tên nguyên liệu
 
     @Column(name = "prices")

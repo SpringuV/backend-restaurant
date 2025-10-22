@@ -13,10 +13,9 @@ import java.time.Instant;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class IngredientCreateResponse {
-    String id_ingredient;
     String name_ingredients;
-    double prices;
-    int quantity;
+    Double prices;
+    Integer quantity;
     Ingredient.UnitOfMeasurement unit_of_measurement;
     String description;
     String supplier;

@@ -10,8 +10,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class IngredientCreateRequest {
-    String name_ingredients;
+public class IngredientUpdateRequest {
     Ingredient.UnitOfMeasurement unit_of_measurement;
     Double prices;
     String description;

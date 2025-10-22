@@ -9,6 +9,7 @@ public enum ErrorCode {
     UN_AUTHORIZED_TO_DELETE_USER(101, "Un authorized to delete user", HttpStatus.UNAUTHORIZED),
     UNCATEGORIZED_EXCEPTION(101, "Uncategorized exception !", HttpStatus.INTERNAL_SERVER_ERROR),
 
+    INGREDIENT_NOT_FOUND(102, "Ingredient not found !", HttpStatus.NOT_FOUND),
     TABLE_NOT_FOUND(102, "Table not found !", HttpStatus.NOT_FOUND),
     USER_NOT_FOUND(102, "User not found !", HttpStatus.NOT_FOUND),
     ORDERS_NOT_FOUND(102, "Orders not found !", HttpStatus.NOT_FOUND),
@@ -23,6 +24,7 @@ public enum ErrorCode {
     PASSWORD_INVALID(103, "Password at least {min} characters", HttpStatus.BAD_REQUEST),
     USERNAME_INVALID(103, "Username at least {min} characters", HttpStatus.BAD_REQUEST),
 
+    INGREDIENT_EXISTED(104, "Ingredient existed !", HttpStatus.BAD_REQUEST),
     USER_EXISTED(104, "User existed !", HttpStatus.BAD_REQUEST),
     ROLE_EXISTED(104, "Role existed !", HttpStatus.BAD_REQUEST),
     ORDERS_EXISTED(104, "Orders existed !", HttpStatus.BAD_REQUEST),
