@@ -35,11 +35,11 @@ public class IngredientController {
                 .build();
     }
 
-    @GetMapping
-    ApiResponse<List<IngredientResponse>> loadAllIngredient(){
+    @GetMapping("/{code_warehouse}")
+    ApiResponse<List<IngredientResponse>> loadAllIngredient(@PathVariable("code_warehouse") String code_warehouse){
         return ApiResponse.<List<IngredientResponse>>builder()
                 .message("Load All Ingredient")
-                .result(ingredientService.loadAllIngredient())
+                .result(ingredientService.loadAllIngredientByCodeWarehouse(code_warehouse))
                 .build();
     }
 
@@ -52,11 +52,11 @@ public class IngredientController {
                 .build();
     }
 
-    @GetMapping("/supplier")
-    ApiResponse<LoadNameSupplierAndIngredientResponse> loadNameSupplierAndIngredientResponseApi(){
-        return ApiResponse.<LoadNameSupplierAndIngredientResponse>builder()
+    @GetMapping("/supplier/{code_warehouse}")
+    ApiResponse<List<IngredientOfSupplierResponse>> loadNameSupplierAndIngredientResponseApi(@PathVariable("code_warehouse") String code_house){
+        return ApiResponse.<List<IngredientOfSupplierResponse>>builder()
                 .message("Get list supplier and ingredient")
-                .result(ingredientService.loadSupplierAndIngredientInIt())
+                .result(ingredientService.loadSupplierAndIngredientInItByCodeWarehouse(code_house))
                 .build();
     }
 }

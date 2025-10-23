@@ -27,9 +27,6 @@ public class Ingredient {
     @Column(name = "prices")
     double prices;
 
-    @Column(name = "quantity")
-    int quantity; // hàng tồn kho hiện tại
-
     public enum UnitOfMeasurement {
         KG, GRAM, CÁI, BÓ, THÙNG, HỘP, TÚI, CHIẾC, VIÊN, ĐÔI, LỌ, BÌNH
     }
@@ -51,6 +48,9 @@ public class Ingredient {
 
     @Column(name = "updated_at")
     Instant updated_at;
+
+    @OneToMany(mappedBy = "ingredient")
+    List<WarehouseIngredient> warehouse_ngredients_list;
 
     @PrePersist
     protected void onCreate() {

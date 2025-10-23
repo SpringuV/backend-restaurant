@@ -16,5 +16,4 @@ public class IngredientCreateRequest {
     Double prices;
     String description;
     String supplier;
-    Integer quantity;
 }

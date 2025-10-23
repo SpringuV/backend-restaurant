@@ -15,5 +15,4 @@ public class IngredientUpdateRequest {
     Double prices;
     String description;
     String supplier;
-    Integer quantity;
 }

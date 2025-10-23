@@ -15,7 +15,6 @@ import java.time.Instant;
 public class IngredientCreateResponse {
     String name_ingredients;
     Double prices;
-    Integer quantity;
     Ingredient.UnitOfMeasurement unit_of_measurement;
     String description;
     String supplier;

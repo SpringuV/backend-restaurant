@@ -2,14 +2,12 @@ package business.project.noodles.service;
 
 import business.project.noodles.dto.inventory_transaction.*;
 import business.project.noodles.dto.warehouse.WarehouseResponse;
-import business.project.noodles.entity.Ingredient;
-import business.project.noodles.entity.InventoryTransaction;
-import business.project.noodles.entity.User;
-import business.project.noodles.entity.Warehouse;
+import business.project.noodles.entity.*;
 import business.project.noodles.exception.AppException;
 import business.project.noodles.exception.ErrorCode;
 import business.project.noodles.repository.IngredientRepository;
 import business.project.noodles.repository.InventoryTransactionRepository;
+import business.project.noodles.repository.WarehouseIngredientRepository;
 import business.project.noodles.repository.WarehouseRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +29,7 @@ public class WarehouseService {
     WarehouseRepository warehouseRepository;
     IngredientRepository ingredientRepository;
     InventoryTransactionRepository inventoryTransactionRepository;
+    WarehouseIngredientRepository warehouseIngredientRepository;
 
     public List<WarehouseResponse> getListWareHouse() {
         return warehouseRepository.findAll().stream().map(item -> WarehouseResponse.builder()
@@ -42,18 +41,26 @@ public class WarehouseService {
 
     public InventoryTransCreateResponse createImportExport(InventoryTransCreateRequest request) {
         Ingredient ingredient = ingredientRepository.findBySupplierAndNameIngredient(request.getName_supplier(), request.getName_ingredients()).orElseThrow(() -> new AppException(ErrorCode.INGREDIENT_NOT_FOUND));
+        // Lấy warehouse theo code
+        Warehouse warehouse = warehouseRepository.findByCodeWarehouse(request.getCode_warehouse())
+                .orElseThrow(() -> new AppException(ErrorCode.WAREHOUSE_NOT_FOUND));
+        WarehouseIngredient warehouseIngredient = warehouseIngredientRepository
+                .findByWarehouseAndIngredient(warehouse.getId_warehouse(), ingredient.getId_ingredient())
+                .orElse(WarehouseIngredient.builder()
+                        .warehouse(warehouse)
+                        .ingredient(ingredient)
+                        .quantity(0) // mặc định ban đầu chưa có hàng
+                        .build());
         if (request.getType() == InventoryTransaction.TypeInventoryTransaction.IMPORT) {
-            ingredient.setQuantity(ingredient.getQuantity() + request.getQuantity());
+            warehouseIngredient.setQuantity(warehouseIngredient.getQuantity() + request.getQuantity());
         } else if (request.getType() == InventoryTransaction.TypeInventoryTransaction.EXPORT) {
-            if (ingredient.getQuantity() < request.getQuantity()) {
+            if (warehouseIngredient.getQuantity() < request.getQuantity()) {
                 throw new AppException(ErrorCode.INSUFFICIENT_STOCK);
             }
-            ingredient.setQuantity(ingredient.getQuantity() - request.getQuantity());
+            warehouseIngredient.setQuantity(warehouseIngredient.getQuantity() - request.getQuantity());
         }
-
+        warehouseIngredientRepository.save(warehouseIngredient);
         User user = User.builder().id_user(request.getId_user()).build();
-        Warehouse warehouse = warehouseRepository.findByCodeWarehouse(request.getCode_warehouse()).orElseThrow(() -> new AppException(ErrorCode.WAREHOUSE_NOT_FOUND));
-
         InventoryTransaction inventoryTransaction = InventoryTransaction.builder()
                 .type(request.getType())
                 .quantity(request.getQuantity())
@@ -71,15 +78,15 @@ public class WarehouseService {
 
     }
 
-    public List<LoadInventoryTransactionResponse> loadInventoryTransactionResponseListByWarehouse(String code_warehouse){
+    public List<LoadInventoryTransactionResponse> loadInventoryTransactionResponseListByWarehouse(String code_warehouse) {
         // tìm kho theo mã code
-        Warehouse warehouse = warehouseRepository.findByCodeWarehouse(code_warehouse).orElseThrow(()-> new AppException(ErrorCode.WAREHOUSE_NOT_FOUND));
+        Warehouse warehouse = warehouseRepository.findByCodeWarehouse(code_warehouse).orElseThrow(() -> new AppException(ErrorCode.WAREHOUSE_NOT_FOUND));
         // lấy danh sách giao dịch kho
         List<InventoryTransaction> inventoryTransactionList = warehouse.getInventory_transactions();
         // tạo response
         List<LoadInventoryTransactionResponse> responseList = new ArrayList<>();
         // lọc qua từng giao dịch để lấy chi tiết đối tượng
-        for (InventoryTransaction inventoryTransaction: inventoryTransactionList){
+        for (InventoryTransaction inventoryTransaction : inventoryTransactionList) {
             // nguyên liệu
             Ingredient ingredient = inventoryTransaction.getIngredient();
             // người thao tác giao dịch

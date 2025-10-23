@@ -2,9 +2,13 @@ package business.project.noodles.service;
 
 import business.project.noodles.dto.ingredient.*;
 import business.project.noodles.entity.Ingredient;
+import business.project.noodles.entity.Warehouse;
+import business.project.noodles.entity.WarehouseIngredient;
 import business.project.noodles.exception.AppException;
 import business.project.noodles.exception.ErrorCode;
 import business.project.noodles.repository.IngredientRepository;
+import business.project.noodles.repository.WarehouseIngredientRepository;
+import business.project.noodles.repository.WarehouseRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -24,23 +28,23 @@ import java.util.Optional;
 public class IngredientService {
 
     IngredientRepository ingredientRepository;
+    WarehouseRepository warehouseRepository;
+    WarehouseIngredientRepository warehouseIngredientRepository;
 
     public IngredientCreateResponse createIngredient(IngredientCreateRequest request) {
         Optional<Ingredient> ingredientDB = ingredientRepository.findBySupplierAndNameIngredient(request.getSupplier(), request.getName_ingredients());
-        if(ingredientDB != null) {
-            throw  new AppException(ErrorCode.INGREDIENT_EXISTED);
+        if (ingredientDB.isPresent()) {
+            throw new AppException(ErrorCode.INGREDIENT_EXISTED);
         }
-
         Ingredient ingredient = Ingredient.builder()
                 .name_ingredients(request.getName_ingredients())
                 .description(request.getDescription())
                 .supplier(request.getSupplier())
                 .prices(request.getPrices())
-                .quantity(request.getQuantity())
                 .unit_of_measurement(request.getUnit_of_measurement())
                 .build();
-
         ingredient = ingredientRepository.save(ingredient);
+
         return IngredientCreateResponse.builder()
                 .created_at(ingredient.getCreated_at())
                 .unit_of_measurement(ingredient.getUnit_of_measurement())
@@ -48,37 +52,39 @@ public class IngredientService {
                 .supplier(ingredient.getSupplier())
                 .name_ingredients(ingredient.getName_ingredients())
                 .prices(ingredient.getPrices())
-                .quantity(ingredient.getQuantity())
                 .build();
     }
 
-    public List<IngredientResponse> loadAllIngredient(){
-        return ingredientRepository.findAll().stream().map(item -> IngredientResponse.builder()
-                .name_ingredients(item.getName_ingredients())
-                .prices(item.getPrices())
-                .id_ingredient(item.getId_ingredient())
-                .created_at(item.getCreated_at())
-                .description(item.getDescription())
-                .quantity(item.getQuantity())
-                .supplier(item.getSupplier())
-                .unit_of_measurement(item.getUnit_of_measurement())
-                .updated_at(item.getUpdated_at())
-                .build()).toList();
+    public List<IngredientResponse> loadAllIngredientByCodeWarehouse(String code_warehouse) {
+        List<WarehouseIngredient> warehouseIngredientList = warehouseIngredientRepository.findByWarehouseCode(code_warehouse);
+        return warehouseIngredientList.stream()
+                .map(wi -> IngredientResponse.builder()
+                        .id_ingredient(wi.getIngredient().getId_ingredient())
+                        .name_ingredients(wi.getIngredient().getName_ingredients())
+                        .prices(wi.getIngredient().getPrices())
+                        .quantity(wi.getQuantity())
+                        .unit_of_measurement(wi.getIngredient().getUnit_of_measurement())
+                        .description(wi.getIngredient().getDescription())
+                        .supplier(wi.getIngredient().getSupplier())
+                        .created_at(wi.getIngredient().getCreated_at())
+                        .updated_at(wi.getIngredient().getUpdated_at())
+                        .build())
+                .toList();
     }
 
-    public DeleteIngredientResponse deleteIngredient(String id_ingredient){
+    public DeleteIngredientResponse deleteIngredient(String id_ingredient) {
         try {
             ingredientRepository.deleteById(id_ingredient);
         } catch (Exception e) {
             throw new AppException(ErrorCode.INGREDIENT_NOT_FOUND);
         }
-        return DeleteIngredientResponse.builder().is_deleted(true).message("delete {"+id_ingredient +"} success").build();
+        return DeleteIngredientResponse.builder().is_deleted(true).message("delete {" + id_ingredient + "} success").build();
     }
 
-    public IngredientUpdateResponse updateIngredient(String id_ingredient, IngredientUpdateRequest request){
-        Ingredient ingredient = ingredientRepository.findById(id_ingredient).orElseThrow(()-> new AppException(ErrorCode.INGREDIENT_NOT_FOUND));
+    public IngredientUpdateResponse updateIngredient(String id_ingredient, IngredientUpdateRequest request) {
+
+        Ingredient ingredient = ingredientRepository.findById(id_ingredient).orElseThrow(() -> new AppException(ErrorCode.INGREDIENT_NOT_FOUND));
         ingredient.setUnit_of_measurement(request.getUnit_of_measurement());
-        ingredient.setQuantity(request.getQuantity());
         ingredient.setDescription(request.getDescription());
         ingredient.setPrices(request.getPrices());
         ingredient.setSupplier(request.getSupplier());
@@ -89,7 +95,6 @@ public class IngredientService {
                 .supplier(ingredient.getSupplier())
                 .id_ingredient(ingredient.getId_ingredient())
                 .prices(ingredient.getPrices())
-                .quantity(ingredient.getQuantity())
                 .unit_of_measurement(ingredient.getUnit_of_measurement())
                 .name_ingredients(ingredient.getName_ingredients())
                 .updated_at(ingredient.getUpdated_at())
@@ -97,26 +102,29 @@ public class IngredientService {
                 .build();
     }
 
-    public LoadNameSupplierAndIngredientResponse loadSupplierAndIngredientInIt(){
+    public List<IngredientOfSupplierResponse> loadSupplierAndIngredientInItByCodeWarehouse(String code_warehouse) {
         // lấy danh sách supplier
-        List<String> supplierList = ingredientRepository.getListSupplier();
+        List<WarehouseIngredient> warehouseIngredientList = warehouseIngredientRepository.findByWarehouseCode(code_warehouse);
+        List<String> supplierList = warehouseIngredientList.stream().map(item -> item.getIngredient().getSupplier()).distinct().toList();
         // tạo response
         List<IngredientOfSupplierResponse> ingredientOfSupplierResponselist = new ArrayList<>();
         // duyệt từng tên nhà cung cấp để lấy danh sách ingre tương ứng
-        for(String supplier: supplierList){
-            List<IngredientWarehouseResponse> ingredientListResponse = ingredientRepository.getListBySupplier(supplier).stream()
+        for (String supplier : supplierList) {
+            // Lọc các nguyên liệu thuộc supplier này trong kho
+            List<IngredientWarehouseResponse> ingredientsOfSupplier  = warehouseIngredientList.stream()
+                    .filter(wi -> wi.getIngredient().getSupplier().equals(supplier))
                     .map(item -> IngredientWarehouseResponse.builder()
-                            .name_ingredients(item.getName_ingredients())
-                            .prices(item.getPrices())
+                            .name_ingredients(item.getIngredient().getName_ingredients())
+                            .prices(item.getIngredient().getPrices())
                             .quantity(item.getQuantity())
                             .build()).toList();
             // tạo đối tượng response bao gồm tên và danh sách
             IngredientOfSupplierResponse ingredientOfSupplierResponse = IngredientOfSupplierResponse.builder()
                     .name_supplier(supplier)
-                    .ingredient_of_warehouse(ingredientListResponse)
+                    .ingredient_of_warehouse(ingredientsOfSupplier)
                     .build();
             ingredientOfSupplierResponselist.add(ingredientOfSupplierResponse);
         }
-        return LoadNameSupplierAndIngredientResponse.builder().list_name_supplier_and_ingredient_response(ingredientOfSupplierResponselist).build();
+        return ingredientOfSupplierResponselist;
     }
 }

@@ -16,7 +16,6 @@ public class IngredientUpdateResponse {
     String id_ingredient;
     String name_ingredients;
     Double prices;
-    Integer quantity;
     Ingredient.UnitOfMeasurement unit_of_measurement;
     String description;
     String supplier ;
