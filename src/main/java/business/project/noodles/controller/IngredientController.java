@@ -35,11 +35,11 @@ public class IngredientController {
                 .build();
     }
 
-    @GetMapping("/{code_warehouse}")
-    ApiResponse<List<IngredientResponse>> loadAllIngredient(@PathVariable("code_warehouse") String code_warehouse){
+    @GetMapping
+    ApiResponse<List<IngredientResponse>> loadAllIngredient(){
         return ApiResponse.<List<IngredientResponse>>builder()
                 .message("Load All Ingredient")
-                .result(ingredientService.loadAllIngredientByCodeWarehouse(code_warehouse))
+                .result(ingredientService.loadAllIngredientByCodeWarehouse())
                 .build();
     }
 

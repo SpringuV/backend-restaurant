@@ -55,19 +55,17 @@ public class IngredientService {
                 .build();
     }
 
-    public List<IngredientResponse> loadAllIngredientByCodeWarehouse(String code_warehouse) {
-        List<WarehouseIngredient> warehouseIngredientList = warehouseIngredientRepository.findByWarehouseCode(code_warehouse);
-        return warehouseIngredientList.stream()
+    public List<IngredientResponse> loadAllIngredientByCodeWarehouse() {
+        return ingredientRepository.findAll().stream()
                 .map(wi -> IngredientResponse.builder()
-                        .id_ingredient(wi.getIngredient().getId_ingredient())
-                        .name_ingredients(wi.getIngredient().getName_ingredients())
-                        .prices(wi.getIngredient().getPrices())
-                        .quantity(wi.getQuantity())
-                        .unit_of_measurement(wi.getIngredient().getUnit_of_measurement())
-                        .description(wi.getIngredient().getDescription())
-                        .supplier(wi.getIngredient().getSupplier())
-                        .created_at(wi.getIngredient().getCreated_at())
-                        .updated_at(wi.getIngredient().getUpdated_at())
+                        .id_ingredient(wi.getId_ingredient())
+                        .name_ingredients(wi.getName_ingredients())
+                        .prices(wi.getPrices())
+                        .unit_of_measurement(wi.getUnit_of_measurement())
+                        .description(wi.getDescription())
+                        .supplier(wi.getSupplier())
+                        .created_at(wi.getCreated_at())
+                        .updated_at(wi.getUpdated_at())
                         .build())
                 .toList();
     }
