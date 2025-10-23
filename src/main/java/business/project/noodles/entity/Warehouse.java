@@ -19,7 +19,7 @@ public class Warehouse {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id_warehouse;
 
-    @Column(name = "code_whs")
+    @Column(name = "code_whs", unique = true)
     String code_warehouse;
 
     @Column(name = "name_whs")

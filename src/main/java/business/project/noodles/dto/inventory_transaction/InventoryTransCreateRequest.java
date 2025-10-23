@@ -1,6 +1,5 @@
 package business.project.noodles.dto.inventory_transaction;
 
-import business.project.noodles.entity.Ingredient;
 import business.project.noodles.entity.InventoryTransaction;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -16,6 +15,7 @@ public class InventoryTransCreateRequest {
     InventoryTransaction.TypeInventoryTransaction type; // "IMPORT" hoặc "EXPORT"
     String note; // tùy chọn
     String id_user;
-    String id_ingredient;
-    Ingredient.UnitOfMeasurement unit_of_measurement;
+    String name_ingredients;
+    String name_supplier;
+    String code_warehouse;
 }

@@ -12,7 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +26,7 @@ public class IngredientService {
     IngredientRepository ingredientRepository;
 
     public IngredientCreateResponse createIngredient(IngredientCreateRequest request) {
-        Ingredient ingredientDB = ingredientRepository.findBySupplierAndNameIngredient(request.getSupplier(), request.getName_ingredients());
+        Optional<Ingredient> ingredientDB = ingredientRepository.findBySupplierAndNameIngredient(request.getSupplier(), request.getName_ingredients());
         if(ingredientDB != null) {
             throw  new AppException(ErrorCode.INGREDIENT_EXISTED);
         }
@@ -93,5 +95,28 @@ public class IngredientService {
                 .updated_at(ingredient.getUpdated_at())
                 .created_at(ingredient.getCreated_at())
                 .build();
+    }
+
+    public LoadNameSupplierAndIngredientResponse loadSupplierAndIngredientInIt(){
+        // lấy danh sách supplier
+        List<String> supplierList = ingredientRepository.getListSupplier();
+        // tạo response
+        List<IngredientOfSupplierResponse> ingredientOfSupplierResponselist = new ArrayList<>();
+        // duyệt từng tên nhà cung cấp để lấy danh sách ingre tương ứng
+        for(String supplier: supplierList){
+            List<IngredientWarehouseResponse> ingredientListResponse = ingredientRepository.getListBySupplier(supplier).stream()
+                    .map(item -> IngredientWarehouseResponse.builder()
+                            .name_ingredients(item.getName_ingredients())
+                            .prices(item.getPrices())
+                            .quantity(item.getQuantity())
+                            .build()).toList();
+            // tạo đối tượng response bao gồm tên và danh sách
+            IngredientOfSupplierResponse ingredientOfSupplierResponse = IngredientOfSupplierResponse.builder()
+                    .name_supplier(supplier)
+                    .ingredient_of_warehouse(ingredientListResponse)
+                    .build();
+            ingredientOfSupplierResponselist.add(ingredientOfSupplierResponse);
+        }
+        return LoadNameSupplierAndIngredientResponse.builder().list_name_supplier_and_ingredient_response(ingredientOfSupplierResponselist).build();
     }
 }

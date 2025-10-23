@@ -52,4 +52,11 @@ public class IngredientController {
                 .build();
     }
 
+    @GetMapping("/supplier")
+    ApiResponse<LoadNameSupplierAndIngredientResponse> loadNameSupplierAndIngredientResponseApi(){
+        return ApiResponse.<LoadNameSupplierAndIngredientResponse>builder()
+                .message("Get list supplier and ingredient")
+                .result(ingredientService.loadSupplierAndIngredientInIt())
+                .build();
+    }
 }

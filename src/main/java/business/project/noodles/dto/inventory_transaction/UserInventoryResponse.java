@@ -1,4 +1,4 @@
-package business.project.noodles.dto.User;
+package business.project.noodles.dto.inventory_transaction;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserAttributeResponse {
-    String username;
+public class UserInventoryResponse {
+    String id_user;
     String full_name;
 }

@@ -1,4 +1,4 @@
-package business.project.noodles.dto.User;
+package business.project.noodles.dto.warehouse;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -9,7 +9,8 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserAttributeResponse {
-    String username;
-    String full_name;
+public class WarehouseResponse {
+    String code_warehouse;
+    String name_warehouse;
+    String address_warehouse;
 }

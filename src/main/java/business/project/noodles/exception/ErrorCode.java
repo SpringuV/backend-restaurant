@@ -9,6 +9,7 @@ public enum ErrorCode {
     UN_AUTHORIZED_TO_DELETE_USER(101, "Un authorized to delete user", HttpStatus.UNAUTHORIZED),
     UNCATEGORIZED_EXCEPTION(101, "Uncategorized exception !", HttpStatus.INTERNAL_SERVER_ERROR),
 
+    WAREHOUSE_NOT_FOUND(102, "Warehouse not found !", HttpStatus.NOT_FOUND),
     INGREDIENT_NOT_FOUND(102, "Ingredient not found !", HttpStatus.NOT_FOUND),
     TABLE_NOT_FOUND(102, "Table not found !", HttpStatus.NOT_FOUND),
     USER_NOT_FOUND(102, "User not found !", HttpStatus.NOT_FOUND),
@@ -34,7 +35,9 @@ public enum ErrorCode {
     FILE_UPLOAD_ERROR(105, "Upload file error", HttpStatus.BAD_REQUEST),
     DELETE_OBJECT_EXCEPTION(105, "Delete object exception", HttpStatus.BAD_REQUEST),
 
-    ORDERS_ITEM_EXISTED(106, "Orders Item existed !", HttpStatus.BAD_REQUEST),
+    ORDERS_ITEM_EXISTED(104, "Orders Item existed !", HttpStatus.BAD_REQUEST),
+
+    INSUFFICIENT_STOCK(106, "Out of stock !", HttpStatus.BAD_REQUEST),
 
     PASSWORD_NOT_MATCHED(107, "Password not matched", HttpStatus.BAD_REQUEST);
 
