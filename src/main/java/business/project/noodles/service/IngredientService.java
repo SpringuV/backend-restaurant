@@ -101,28 +101,48 @@ public class IngredientService {
     }
 
     public List<IngredientOfSupplierResponse> loadSupplierAndIngredientInItByCodeWarehouse(String code_warehouse) {
-        // lấy danh sách supplier
-        List<WarehouseIngredient> warehouseIngredientList = warehouseIngredientRepository.findByWarehouseCode(code_warehouse);
-        List<String> supplierList = warehouseIngredientList.stream().map(item -> item.getIngredient().getSupplier()).distinct().toList();
-        // tạo response
-        List<IngredientOfSupplierResponse> ingredientOfSupplierResponselist = new ArrayList<>();
-        // duyệt từng tên nhà cung cấp để lấy danh sách ingre tương ứng
+
+        // Kiểm tra kho tồn tại
+        Warehouse warehouse = warehouseRepository.findByCodeWarehouse(code_warehouse)
+                .orElseThrow(() -> new AppException(ErrorCode.WAREHOUSE_NOT_FOUND));
+
+        //Lấy danh sách supplier
+        List<String> supplierList = ingredientRepository.getListSupplier();
+
+        //Tạo danh sách kết quả
+        List<IngredientOfSupplierResponse> responseList = new ArrayList<>();
+
+        //Duyệt từng supplier
         for (String supplier : supplierList) {
-            // Lọc các nguyên liệu thuộc supplier này trong kho
-            List<IngredientWarehouseResponse> ingredientsOfSupplier  = warehouseIngredientList.stream()
-                    .filter(wi -> wi.getIngredient().getSupplier().equals(supplier))
-                    .map(item -> IngredientWarehouseResponse.builder()
-                            .name_ingredients(item.getIngredient().getName_ingredients())
-                            .prices(item.getIngredient().getPrices())
-                            .quantity(item.getQuantity())
-                            .build()).toList();
-            // tạo đối tượng response bao gồm tên và danh sách
-            IngredientOfSupplierResponse ingredientOfSupplierResponse = IngredientOfSupplierResponse.builder()
+
+            // Lấy danh sách nguyên liệu theo supplier
+            List<Ingredient> ingredients = ingredientRepository.getListBySupplier(supplier);
+
+            // Map từng nguyên liệu sang response và gán quantity theo kho
+            List<IngredientWarehouseResponse> ingredientsOfSupplier = ingredients.stream().map(item -> {
+                // Tìm warehouseIngredient theo warehouse + ingredient
+                Optional<WarehouseIngredient> warehouseIngredientOpt =
+                        warehouseIngredientRepository.findByWarehouseAndIngredient(warehouse.getId_warehouse(), item.getId_ingredient());
+
+                Integer quantity = warehouseIngredientOpt.map(WarehouseIngredient::getQuantity).orElse(0);
+
+                return IngredientWarehouseResponse.builder()
+                        .name_ingredients(item.getName_ingredients())
+                        .prices(item.getPrices())
+                        .quantity(quantity)
+                        .build();
+            }).toList();
+
+            // Gộp nhóm supplier
+            IngredientOfSupplierResponse supplierResponse = IngredientOfSupplierResponse.builder()
                     .name_supplier(supplier)
                     .ingredient_of_warehouse(ingredientsOfSupplier)
                     .build();
-            ingredientOfSupplierResponselist.add(ingredientOfSupplierResponse);
+
+            responseList.add(supplierResponse);
         }
-        return ingredientOfSupplierResponselist;
+
+        return responseList;
     }
+
 }

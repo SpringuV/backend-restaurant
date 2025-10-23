@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface WarehouseIngredientRepository extends JpaRepository<WarehouseIngredient, String> {
-    // Lấy danh sách nguyên liệu (và số lượng) theo kho
+    // Lấy danh sách theo kho
     @Query("SELECT wi FROM WarehouseIngredient wi WHERE wi.warehouse.code_warehouse = :code_warehouse")
     List<WarehouseIngredient> findByWarehouseCode(@Param("code_warehouse") String code_warehouse);
 
@@ -24,4 +24,8 @@ public interface WarehouseIngredientRepository extends JpaRepository<WarehouseIn
     @Query("SELECT wi FROM WarehouseIngredient wi WHERE wi.warehouse.id_warehouse = :warehouseId AND wi.ingredient.id_ingredient = :ingredientId")
     Optional<WarehouseIngredient> findByWarehouseAndIngredient(@Param("warehouseId") String warehouseId,
                                           @Param("ingredientId") String ingredientId);
+
+    @Query("SELECT wi FROM WarehouseIngredient wi WHERE wi.ingredient.supplier IN :suppliers")
+    List<WarehouseIngredient> findByIngredientSupplierIn(@Param("suppliers") List<String> suppliers);
+
 }
