@@ -16,6 +16,5 @@ public class InvoiceCreateRequest {
     String phone_number_cus;
     double discount;
     Invoice.PaymentMethod payment_method;
-    Invoice.PaymentStatus payment_status;
     String note;
 }

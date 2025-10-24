@@ -35,7 +35,7 @@ public class Invoice {
     double discount;
 
     public enum PaymentMethod {
-        CASH, CARD, BANKING, DIGITAL_WALLET
+        CASH, BANKING
     }
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method")

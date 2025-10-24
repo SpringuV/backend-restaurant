@@ -48,7 +48,7 @@ public class Orders {
 
     //	Tăng type safety, tránh nhập sai giá trị trạng thái.
 //	Lưu vào DB dạng String, dễ đọc/tra cứu.
-    public enum OrderStatus { PENDING, PREPARING, READY, SERVED, CANCELLED }
+    public enum OrderStatus { PENDING, READY, COMPLETED, CANCELLED }
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status")
     OrderStatus order_status;

@@ -10,6 +10,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserAttributeResponse {
-    String username;
+    String id_user;
     String full_name;
 }

@@ -24,8 +24,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity
 public class SercurityConfiguration {
 
-    private final String[] PUBLIC_ENDPOINT = {"/api/users", "/api/auth/token", "/api/auth/logout", "/api/auth/refresh"};
-    private final String[] PUBLIC_ENDPOINT_GET = {"/api/products/**", "/api/products/new-products", "/api/categories/**"};
+    private final String[] PUBLIC_ENDPOINT = {
+            "/api/users",
+            "/api/auth/token",
+            "/api/auth/logout",
+            "/api/auth/refresh"
+    };
+
+    private final String[] PUBLIC_ENDPOINT_GET = {};
     private CustomJwtDecoder customJwtDecoder;
 
     @Autowired
@@ -37,12 +43,15 @@ public class SercurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
         httpSecurity
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // cors
-                .authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINT)
-                        .permitAll()
-                        .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINT_GET)
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated());
+                .authorizeHttpRequests(request -> request
+                        // Cho phép WebSocket endpoints (không cần authentication)
+                        .requestMatchers("/ws/**").permitAll()
+                        // Các POST endpoints public
+                        .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINT).permitAll()
+                        // Các GET endpoints public
+                        .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINT_GET).permitAll()
+                        // Tất cả requests khác cần authentication
+                        .anyRequest().authenticated());
 
         httpSecurity.oauth2ResourceServer(oath2 -> oath2.jwt(jwtConfigurer -> jwtConfigurer
                         .decoder(customJwtDecoder)
@@ -57,8 +66,6 @@ public class SercurityConfiguration {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOriginPattern("*"); // cho phep tat ca cac origin
-        //        configuration.addAllowedOrigin("http://127.0.0.1:5500"); // Cho phép frontend truy cập
-        //        configuration.addAllowedOrigin("http://localhost:5500"); // Thêm các domain khác nếu cần
         configuration.addAllowedMethod("*"); // Cho phép tất cả phương thức (GET, POST,...)
         configuration.addAllowedHeader("*"); // Cho phép tất cả header
         configuration.setAllowCredentials(true); // Cho phép gửi cookie
