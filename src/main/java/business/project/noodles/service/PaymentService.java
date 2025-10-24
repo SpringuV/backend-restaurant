@@ -1,6 +1,8 @@
 package business.project.noodles.service;
 
+import business.project.noodles.entity.Invoice;
 import business.project.noodles.entity.Orders;
+import business.project.noodles.repository.InvoiceRepository;
 import business.project.noodles.repository.OrdersRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +21,11 @@ public class PaymentService {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final OrdersRepository orderRepository;
+    private final InvoiceRepository invoiceRepository;
 
     /**
      * Xử lý khi nhận được thông báo thanh toán thành công từ Sepay webhook
+     *
      * @param orderId ID của order
      * @param amount Số tiền đã thanh toán
      * @param transactionId ID giao dịch từ ngân hàng
@@ -76,15 +80,16 @@ public class PaymentService {
             orderRepository.save(order);
             log.info("✅ Order {} status updated to COMPLETED", orderId);
 
-            // 5. Notify qua WebSocket
+            // 5. Cập nhật Invoice payment_status thành PAID
+            updateInvoicePaymentStatus(Long.parseLong(orderId), transactionId);
+
+            // 6. Notify qua WebSocket
             notifyPaymentSuccess(orderId);
 
-            // 6. TODO: Các xử lý bổ sung
+            // 7. TODO: Các xử lý bổ sung
             // - Gửi email/SMS thông báo
             // - Cập nhật bàn về trạng thái available
-            // - Tạo hóa đơn
             // - Log vào bảng payment_history
-
             return true;
 
         } catch (Exception e) {
@@ -98,13 +103,56 @@ public class PaymentService {
      * Validate số tiền thanh toán
      */
     private boolean validateAmount(Orders order, Double paidAmount) {
-        if (order.getTotal_amount() >=0 || paidAmount == null) {
+        // Kiểm tra null hoặc số âm
+        if (paidAmount == null || paidAmount <= 0) {
+            log.warn("⚠️ Invalid paid amount: {}", paidAmount);
+            return false;
+        }
+
+        if (order.getTotal_amount() <= 0) {
+            log.warn("⚠️ Invalid order amount: {}", order.getTotal_amount());
             return false;
         }
 
         // Cho phép sai lệch 1000đ do làm tròn
         double difference = Math.abs(order.getTotal_amount() - paidAmount);
-        return difference < 1000;
+        boolean isValid = difference < 1000;
+
+        log.info("💰 Amount validation - Order: {}, Paid: {}, Difference: {}, Valid: {}",
+                order.getTotal_amount(), paidAmount, difference, isValid);
+
+        return isValid;
+    }
+
+    /**
+     * Cập nhật trạng thái thanh toán của Invoice
+     */
+    @Transactional
+    public void updateInvoicePaymentStatus(Long orderId, String transactionId) {
+        try {
+            log.info("📄 Updating invoice payment status for order: {}", orderId);
+
+            Optional<Invoice> invoiceOpt = invoiceRepository.findByIdOrder(orderId);
+
+            if (invoiceOpt.isEmpty()) {
+                log.warn("⚠️ Invoice not found for order: {}", orderId);
+                return;
+            }
+
+            Invoice invoice = invoiceOpt.get();
+
+            // Cập nhật payment status
+            invoice.setPayment_status(Invoice.PaymentStatus.PAID);
+            invoice.setPayment_method(Invoice.PaymentMethod.BANKING);
+            // invoice.setTransactionId(transactionId); // Nếu có field này
+
+            invoiceRepository.save(invoice);
+            log.info("✅ Invoice payment status updated to PAID for order: {}", orderId);
+
+        } catch (Exception e) {
+            log.error("❌ Error updating invoice payment status for order {}: {}",
+                    orderId, e.getMessage(), e);
+        }
     }
 
     /**
